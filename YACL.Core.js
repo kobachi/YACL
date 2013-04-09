@@ -1,7 +1,20 @@
 /* YACL Core */
 window.YACL = function(debug){
-	/* Event */
-	var event = new YACL.Event(["log", "info", "warn", "error"]);
-	this.addEventListener = event.add;
-	this.removeEventListener = event.remove;
+	var self = this;
+	var level = ["log", "info", "warn", "error"];
+	// initialize event
+	var event = new YACL.Event(level);
+	_public(self, (window.addEventListener) ? "addEventListener" : "attachEvent", event.add);
+	_public(self, (window.removeEventListener) ? "removeEventListener" : "detachEvent", event.remove);
+	//initalize Logger
+	var logger = new YACL.Logger(level);
+	_each(level, function(l){
+		_public(self, l, function(o){
+			var m = logger[l](o);
+			event.fire(l, m);
+		});
+	});
+	this.test = function(){
+		return logger.logs;
+	};
 };

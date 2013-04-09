@@ -1,3 +1,5 @@
 YACL.Util.js
 YACL.Event.js
+YACL.Log.js
+YACL.Logger.js
 YACL.Core.js

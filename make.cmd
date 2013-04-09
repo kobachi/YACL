@@ -14,7 +14,10 @@ echo  */>>"%YACL_TEMP%"
 echo (function(){>>"%YACL_TEMP%"
 echo var YACL = {};>>"%YACL_TEMP%"
 for /f %%f in (%~dp0make.lst) do (
-	if exist %%f copy /b "%YACL_TEMP%"+"%%f" "%YACL_TEMP%">NUL
+	if exist %%f (
+		copy /b "%YACL_TEMP%"+"%%f" "%YACL_TEMP%">NUL
+		echo.>>"%YACL_TEMP%"
+	)
 )
 echo })();>>"%YACL_TEMP%"
 if exist "%YACL_JS%" del "%YACL_JS%"
