@@ -23,7 +23,7 @@ YACL.Event = function(names){
 		_each(events[name], function(f){
 			var o = {
 				stopPropagation: function(){},
-				preventDefault: function(){},
+				preventDefault: function(){}
 			};
 			if(argmap != null){
 				for(var p in argmap){
