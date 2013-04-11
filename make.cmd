@@ -22,7 +22,7 @@ for /f %%f in (%~dp0make.lst) do (
 echo })();>>"%YACL_TEMP%"
 if exist "%YACL_JS%" del "%YACL_JS%"
 if exist "%YACL_MIN_JS%" del "%YACL_MIN_JS%"
-move %YACL_TEMP% %YACL_JS%
+move %YACL_TEMP% %YACL_JS%>NUL
 java -jar "%~dp0bin\compiler.jar" --js "%YACL_JS%" --compilation_level SIMPLE_OPTIMIZATIONS --js_output_file "%YACL_MIN_JS%"
 
 :end

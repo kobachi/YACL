@@ -26,7 +26,7 @@ function _filter(a, f){
  */
 function _public(o, n, f){
 	o[n] = function(){
-		f.apply(o, arguments);
+		return f.apply(o, arguments);
 	};
 }
 
@@ -34,7 +34,30 @@ function _public(o, n, f){
  * Create unmodifiable property "n" to object "o", property returns value "v".
  */
 function _readonly(o, n, v){
-	Object.defineProperty(o, n, function(){
-		return v;
-	});
+	o[n] = null;
+	try{
+		Object.defineProperty(o, n, {
+			value: v,
+			writable: false
+		});
+	}
+	catch(e){
+		o[n] = v;
+	}
+}
+
+/**
+ * Define property "n" to object "o" using getter "g" and setter "s"
+ */
+function _prop(o, n, g, s){
+	o[n] = null;
+	try{
+		var a = {};
+		if(g != null) a.get = function(){ return g.call(o) };
+		if(s != null) s.get = function(v){ s.call(o, v) };
+		Object.defineProperty(o, n, a);
+	}
+	catch(e){
+		o[n] = g;
+	}
 }

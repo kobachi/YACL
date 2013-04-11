@@ -6,7 +6,19 @@
 	<meta http-equiv="Content-Script-Type" content="text/javascript">
 	<title>YACL Test</title>
 	<script src="../Release/yacl.js"></script>
+	<script>
+	document.addEventListener("DOMContentLoaded", function(){
+		Array.forEach(document.getElementsByTagName("button"), function(e){
+			e.addEventListener("click", function(){
+				eval(this.textContent);
+			});
+		});
+	});
+	</script>
 </head>
 <body>
+<button>window.y = new YACL()</button>
+<button>for(var i = 0; i < 10; i++ ) console.log(y.log(i))</button>
+<button>console.log(y.logs)</button>
 </body>
 </html>

@@ -10,11 +10,10 @@ window.YACL = function(debug){
 	var logger = new YACL.Logger(level);
 	_each(level, function(l){
 		_public(self, l, function(o){
-			var m = logger[l](o);
+			var m = logger[l](o).clone();
 			event.fire(l, m);
+			return m;
 		});
 	});
-	this.test = function(){
-		return logger.logs;
-	};
+	_prop(self, "logs", function(){ return logger.logs });
 };

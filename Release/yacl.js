@@ -32,7 +32,7 @@ function _filter(a, f){
  */
 function _public(o, n, f){
 	o[n] = function(){
-		f.apply(o, arguments);
+		return f.apply(o, arguments);
 	};
 }
 
@@ -40,13 +40,36 @@ function _public(o, n, f){
  * Create unmodifiable property "n" to object "o", property returns value "v".
  */
 function _readonly(o, n, v){
-	Object.defineProperty(o, n, function(){
-		return v;
-	});
+	o[n] = null;
+	try{
+		Object.defineProperty(o, n, {
+			value: v,
+			writable: false
+		});
+	}
+	catch(e){
+		o[n] = v;
+	}
 }
 
+/**
+ * Define property "n" to object "o" using getter "g" and setter "s"
+ */
+function _prop(o, n, g, s){
+	o[n] = null;
+	try{
+		var a = {};
+		if(g != null) a.get = function(){ return g.call(o) };
+		if(s != null) s.get = function(v){ s.call(o, v) };
+		Object.defineProperty(o, n, a);
+	}
+	catch(e){
+		o[n] = g;
+	}
+}
 /* Event Handlers */
 YACL.Event = function(names){
+	var self = this;
 	var events = {};
 
 	//initialize event name hash-table
@@ -59,7 +82,7 @@ YACL.Event = function(names){
 	/**
 	 * Fire event handler of event-name "name" with argument map "argmap"
 	 */
-	this.fire = function(name, argmap){
+	function fire(name, argmap){
 		if(name.indexOf("on") == 0){
 			name = name.subString(2);
 		}
@@ -79,11 +102,12 @@ YACL.Event = function(names){
 			f(o);
 		});
 	};
+	_public(self, "fire", fire);
 
 	/**
 	 * Add event handler
 	 */
-	this.add = function(){
+	function add(){
 		if(arguments.length < 2 || 3 < arguments.length){
 			throw new Error("Invalid Arguments");
 		}
@@ -96,11 +120,12 @@ YACL.Event = function(names){
 			events[name].push(f);
 		}
 	};
+	_public(self, "add", add);
 
 	/**
 	 * Remove event handler
 	 */
-	this.remove = function(){
+	function remove(){
 		if(arguments.length < 2 || 3 < arguments.length){
 			throw new Error("Invalid Arguments");
 		}
@@ -115,32 +140,43 @@ YACL.Event = function(names){
 			});
 		}
 	};
+	_public(self, "remove", remove);
 };
 
 /* Log Data Object */
-YACL.Log = function(type, data){
+YACL.Log = function(type, data, created){
 	//Setup readonly properties
 	_readonly(this, "type", type);
 	_readonly(this, "data", data);
-	_readonly(this, "created", new Date());
+	_readonly(this, "created", (created) ? created : new Date());
 };
 
 /* Logger */
 YACL.Logger = function(levels){
 	var self = this;
 	var logs = [];
-	
+
 	//create logging functions from specified levels
 	_each(levels, function(l){
-		self[l] = function(o){
+		_public(self, l, function(o){
 			var n = new YACL.Log(l, o);
 			logs.push(n);
 			return n;
-		};
+		});
 	});
 	
-	//define logs property
-	_readonly(self, "logs", logs);
+	//"logs" property
+	_prop(self, "logs", function(){
+		var n = [];
+		_each(logs, function(l){
+			n.push(l);
+		});
+		_each(["push", "pop", "reverse", "shift", "sort", "splice", "unshift"], function(f){
+			n[f] = function(){};
+			delete n[f];
+		});
+		return n;
+	});
 };
 
 /* YACL Core */
@@ -157,11 +193,10 @@ window.YACL = function(debug){
 		_public(self, l, function(o){
 			var m = logger[l](o);
 			event.fire(l, m);
+			return m;
 		});
 	});
-	this.test = function(){
-		return logger.logs;
-	};
+	_prop(self, "logs", function(){ return logger.logs });
 };
 
 })();

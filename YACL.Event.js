@@ -1,5 +1,6 @@
 /* Event Handlers */
 YACL.Event = function(names){
+	var self = this;
 	var events = {};
 
 	//initialize event name hash-table
@@ -12,7 +13,7 @@ YACL.Event = function(names){
 	/**
 	 * Fire event handler of event-name "name" with argument map "argmap"
 	 */
-	this.fire = function(name, argmap){
+	function fire(name, argmap){
 		if(name.indexOf("on") == 0){
 			name = name.subString(2);
 		}
@@ -32,11 +33,12 @@ YACL.Event = function(names){
 			f(o);
 		});
 	};
+	_public(self, "fire", fire);
 
 	/**
 	 * Add event handler
 	 */
-	this.add = function(){
+	function add(){
 		if(arguments.length < 2 || 3 < arguments.length){
 			throw new Error("Invalid Arguments");
 		}
@@ -49,11 +51,12 @@ YACL.Event = function(names){
 			events[name].push(f);
 		}
 	};
+	_public(self, "add", add);
 
 	/**
 	 * Remove event handler
 	 */
-	this.remove = function(){
+	function remove(){
 		if(arguments.length < 2 || 3 < arguments.length){
 			throw new Error("Invalid Arguments");
 		}
@@ -68,4 +71,5 @@ YACL.Event = function(names){
 			});
 		}
 	};
+	_public(self, "remove", remove);
 };
